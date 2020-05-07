@@ -1,0 +1,41 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+from collections import Counter
+import seaborn as sns
+from numpy import nan as NA
+%matplotlib inline
+
+'''
+This function will compute the cubic spline interpolation
+'''
+
+def cubic_spline(mat, sol):
+
+    k = np.linalg.solve(mat, sol) # solve the equation mat*k = sol for k
+
+    # determine the values of a_i and b_i
+    a = [k[i]*(x_cords[i+1] - x_cords[i]) - (y_cords[i+1] - y_cords[i]) for i in range(len(k) - 1)]
+    b = [k[i]*(x_cords[i-1] - x_cords[i]) + (y_cords[i] - y_cords[i-1]) for i in range(1,len(k))]
+
+    def q(x, y, a, b): # define the cubic polynomials q_i
+        "determines the cubic spline interpolant between two points. x and y are the cordinates for the points, a and b are found by solving the              linear equaitions for k_i"
+        def t(lins):
+            "returns the value x-x_{i-1}/x_i - x_{i-1} for x_{i-1} <= x <= x_i, where lins is x"
+            return (lins - x[0])/(x[1] - x[0])
+        lins = np.linspace(x[0], x[1], 100) # the number of points can be changed for a finer grid at the expense of computing time.
+        return (1 - t(lins))*y[0] + t(lins)*y[1] + t(lins)*(1 - t(lins))*(a*(1 - t(lins)) + b*t(lins))
+
+    q_1 = q(x_cords[:2], y_cords[:2], a[0], b[0])
+    q_2 = q(x_cords[1:], y_cords[1:], a[1], b[1])
+
+    lins_1 = np.linspace(x_cords[0], x_cords[1], 100)
+    lins_2 = np.linspace(x_cords[1], x_cords[2], 100)
+
+    plt.plot(lins_1, q_1, 'r')
+    plt.plot(lins_2, q_2, 'b')
+    plt.scatter(x_cords, y_cords, c='k')
+    None
+
+    return k
