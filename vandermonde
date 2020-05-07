@@ -1,0 +1,33 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+from collections import Counter
+import seaborn as sns
+from numpy import nan as NA
+%matplotlib inline
+
+'''
+This function will compute the polynomial interpolation function of any degree using the Vandermonde matrix formulation.
+'''
+
+def interpol_poly(x_cords, y_cords):
+
+    n = len(x_cords) # degree of polynomial
+
+    x = np.array(x_cords)
+    y = np.array(y_cords).reshape(n, 1)
+
+    mat = np.vander(x_cords, n) # create vandermonde matrix
+
+    a = np.linalg.solve(mat, y_cords) #keep in mind the entries in a are in reverse order, so a_n is actually a[0]
+
+    p_poly = np.poly1d(a)
+
+    lins = np.linspace(x_cords[0], x_cords[-1], 200)
+
+    plt.plot(lins, p_poly(lins), 'b')
+    plt.scatter(x, y_cords, c='k')
+    None
+
+    return a
